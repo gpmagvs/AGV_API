@@ -1,7 +1,7 @@
 import json
 import requests
 import threading
-from agvs_classes import clsAGVSatus, clsTaskDownload , clsTaskFeedback,TASK_STATUS,TaskFeedbackEncoder ,clsVMSReturn,clsOnlineModeQueryAck
+from agvs_classes import clsAGVSatus, clsTaskDownload , clsTaskFeedback,TASK_STATUS,TaskFeedbackEncoder ,clsVMSReturn,clsOnlineModeQueryAck,clsCancelTask
 from flask import Flask , request
 
 
@@ -10,6 +10,7 @@ class AGVS_EVENT_HANDLERS:
     ONLINE_HANDLER =None
     OFFLINE_HANDLER =None
     TASK_EXECUTE_HANDLER =None
+    CANCEL_TASK_HANDLER = None
 
 class AgvsMiddleware:
     
@@ -45,6 +46,8 @@ class AgvsMiddleware:
         self.app.add_url_rule('/api/AGV/agv_online','/api/AGV/agv_online',self.API_ONLINE_REQ,methods=['GET'])
         self.app.add_url_rule('/api/AGV/agv_offline','/api/AGV/agv_offline',self.API_OFFLINE_REQ,methods=['GET'])
         self.app.add_url_rule('/api/TaskDispatch/Execute','/api/TaskDispatch/Execute',self.API_TASK_EXECTUE,methods=['POST'])
+        self.app.add_url_rule('/api/TaskDispatch/Cancel','/api/TaskDispatch/Cancel',self.API_TASK_CANCEL,methods=['POST'])
+        self.app.add_url_rule('/api/TrafficState/DynamicTrafficState','/api/TrafficState/DynamicTrafficState',self.API_DynamicTrafficState,methods=['POST'])
         self.app.run(host=self.Host,port=self.Port,debug=False)
         
         
@@ -137,8 +140,23 @@ class AgvsMiddleware:
     
     def API_OFFLINE_REQ(self):
         return self.Event_Handlers.OFFLINE_HANDLER('')
-    
+    def API_DynamicTrafficState(self):
+        return  {'ReturnCode':0,'Message':''}
+
+    def API_TASK_CANCEL(self):
+        """
+        [AGVS->AGV] 取消任務請求
+        """
+        cancel_task_dto =  clsCancelTask()
+        cancel_task_dto.TimeStamp = request.json['TimeStamp']
+        cancel_task_dto.ResetMode = request.json['ResetMode']
+        cancel_task_dto.Task_Name = request.json['Task_Name']
+        return self.Event_Handlers.CANCEL_TASK_HANDLER(cancel_task_dto)
+
     def API_TASK_EXECTUE(self):
+         """
+         [AGVS->AGV] 執行任務下載
+         """
          taskDownload=self.GetTaskDownloadData(request.json)
          
          if self.previous_task is not None:

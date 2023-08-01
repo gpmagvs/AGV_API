@@ -43,6 +43,21 @@ class ONLINE_MODE(Enum):
     Offline = 0 
     Online  = 1
 
+
+class TASK_CANCEL_MODE(Enum):
+    """
+    取消任務類型
+    """
+    STOP_RIGHTNOW = 0   
+    """
+    立即停止
+    """
+    
+    CYCLE_STOP  = 1
+    """
+    至下一個點停止
+    """
+
 class ACTION_TYPE(Enum): 
         Move=0
         Unload=1
@@ -224,4 +239,10 @@ class clsTaskDownload:
        Height:int
        Escape_Flag:bool
        Station_Type:STATION_TYPE
+       
+
+class clsCancelTask:
+    TimeStamp :datetime
+    ResetMode : TASK_CANCEL_MODE
+    Task_Name:str
        
