@@ -110,7 +110,24 @@ class clsAlarmCode:
     Alarm_Level:int =0
     Alarm_Category:int=0 
     Alarm_Description:str=''
-    
+
+@dataclass
+class clsDriverStates:
+    """
+    馬達狀態
+    """
+    Speed:float =0
+    Status:int = 0
+    ErrorCode:int=0
+
+@dataclass
+class clsForkStates:
+    """
+    雲科叉車牙叉狀態
+    """
+    VerticalPose:float=0.0
+    HorizonPose:float=0.0
+    Tile:float=0.0
     
 @dataclass
 class clsAGVSatus(): 
@@ -133,8 +150,10 @@ class clsAGVSatus():
     CSTID :List[str]= None
     Electric_Volume :List[float]= None
     Alarm_Code:List[clsAlarmCode]=None
-    
+    DriversStatus:List[clsDriverStates]=None
+    ForkStatus:clsForkStates =None
     def __post_init__(self):
+        
         if self.Coordination is None:
             self.Coordination=clsCoordination()
         if self.Sensor_Status is None:
@@ -145,6 +164,11 @@ class clsAGVSatus():
             self.Electric_Volume=[0.0]
         if self.Alarm_Code is None:
             self.Alarm_Code=[]
+        
+        if self.DriversStatus is None:
+            self.DriversStatus=[]
+        if self.ForkStatus is None:
+            self.ForkStatus= clsForkStates()
     
     def to_json(self) -> str:
         return json.dumps(asdict(self),default=serialize_enum)

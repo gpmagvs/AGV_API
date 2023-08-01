@@ -1,5 +1,5 @@
 from  AGVSMiddleware import AgvsMiddleware,AGVS_EVENT_HANDLERS
-from agvs_classes import AGV_STATUS, TASK_STATUS, clsTaskDownload, clsTaskFeedback,clsAGVSatus,clsCancelTask
+from agvs_classes import AGV_STATUS, TASK_STATUS, clsTaskDownload, clsTaskFeedback,clsDriverStates,clsAGVSatus,clsCancelTask
 import json
 import threading
 import time
@@ -129,6 +129,12 @@ if __name__=='__main__':
     agv_states.AGV_Status= AGV_STATUS.IDLE
     agv_states.Electric_Volume=[99,99]
     agv_states.Last_Visited_Node=init_tag
+    driver=clsDriverStates()
+    driver.Speed=1.1
+    driver.Status=3
+    agv_states.DriversStatus=[]
+    agv_states.DriversStatus.append(driver)
+    
     
     events = AGVS_EVENT_HANDLERS()
     events.ONLINE_HANDLER = OnlineReqHandler;
