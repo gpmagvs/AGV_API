@@ -57,7 +57,25 @@ if __name__=='__main__':
         move_thread.start();
         
         return  {'ReturnCode':0,'Message': request.Task_Name+' recieved'}
-    
+    def getActionType(action_int):
+        if action_int ==0:
+            return ACTION_TYPE.Move;
+        if action_int ==1:
+            return ACTION_TYPE.Unload;
+        if action_int ==2:
+            return ACTION_TYPE.LoadAndPark;
+        if action_int ==7:
+            return ACTION_TYPE.Load;
+        if action_int ==8:
+            return ACTION_TYPE.Charge;
+        if action_int ==10:
+            return ACTION_TYPE.Discharge;
+        if action_int ==12:
+            return ACTION_TYPE.Park;
+        if action_int ==13:
+            return ACTION_TYPE.Unpark;
+        
+        return ACTION_TYPE.Move
     def simulation_move(taskDownload:clsTaskDownload):
             global agv_states,taskStatus
             time.sleep(1)
@@ -67,12 +85,13 @@ if __name__=='__main__':
             index=0
             agv_states.AGV_Status = AGV_STATUS.RUN
             _traj= None
-            action =taskDownload.Action_Type
-            if action == 1|action == 7:
+            action = getActionType(taskDownload.Action_Type) 
+            
+            if action == ACTION_TYPE.Load or action == ACTION_TYPE.Unload:
                 _traj=taskDownload.Homing_Trajectory
                 _traj=_traj+[_traj[0]]
             else:
-                if action == 0:
+                if action == ACTION_TYPE.Move:
                     _traj=taskDownload.Trajectory
                 else :
                     _traj=taskDownload.Homing_Trajectory
@@ -90,22 +109,30 @@ if __name__=='__main__':
                 taskStatus.point_index = index
                 taskStatus.status = TASK_STATUS.NAVIGATING
                 index+=1
-                time.sleep(1)
                 
-            if taskDownload.Action_Type== ACTION_TYPE.Load:
-                agv_states.Cargo_Status= 0
-            else:
-                agv_states.Cargo_Status= 1
-         
-
+                if index== len(_traj)-1:
+                    if action== ACTION_TYPE.Load:
+                        agv_states.Cargo_Status= 0
+                    else:
+                        agv_states.Cargo_Status= 1
+                time.sleep(.5)
+                
+           
             print(f'模擬移動完成_抵達 Tag {agv_states.Last_Visited_Node}')
+            time.sleep(.1)
             taskStatus.task_name=taskName
             taskStatus.task_seq=tskSeq
             taskStatus.task_simplex=taskSimp
             taskStatus.status = TASK_STATUS.ACTION_FINISH
             
             AGVS_Middleware.TaskFeedback(taskStatus)
-            agv_states.AGV_Status = AGV_STATUS.IDLE
+            
+
+            if action== ACTION_TYPE.Charge :
+                agv_states.AGV_Status = AGV_STATUS.Charging;
+                agv_states.Electric_Volume[0] = 99
+            else:
+                agv_states.AGV_Status = AGV_STATUS.IDLE
 
     def ReportStatusWorker():
         while True:
@@ -145,7 +172,7 @@ if __name__=='__main__':
             
     agv_states.Last_Visited_Node=1
     agv_states.AGV_Status= AGV_STATUS.IDLE
-    agv_states.Electric_Volume=[99,99]
+    agv_states.Electric_Volume=[65,77]
     agv_states.Last_Visited_Node=init_tag
     driver=clsDriverStates()
     driver.Speed=1.1
