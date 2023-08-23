@@ -1,1 +1,1 @@
-python ./api_test.py 127.0.0.1 22345 forklift_2 11
+python ./api_test.py 127.0.0.1 22345 AGV_002 3 4.853 6.216

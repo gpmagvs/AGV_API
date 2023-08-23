@@ -3,6 +3,7 @@ import requests
 import threading
 from agvs_classes import clsAGVSatus, clsTaskDownload , clsTaskFeedback,TASK_STATUS,TaskFeedbackEncoder ,clsVMSReturn,clsOnlineModeQueryAck,clsCancelTask
 from flask import Flask , request
+import logging
 
 
 
@@ -43,6 +44,7 @@ class AgvsMiddleware:
         # self._Run()
         
     def _Run(self):
+        self.app.logger.setLevel(logging.ERROR)
         self.app.add_url_rule('/api/AGV/agv_online','/api/AGV/agv_online',self.API_ONLINE_REQ,methods=['GET'])
         self.app.add_url_rule('/api/AGV/agv_offline','/api/AGV/agv_offline',self.API_OFFLINE_REQ,methods=['GET'])
         self.app.add_url_rule('/api/TaskDispatch/Execute','/api/TaskDispatch/Execute',self.API_TASK_EXECTUE,methods=['POST'])
@@ -181,7 +183,7 @@ class AgvsMiddleware:
          taskDownload.Task_Simplex = task_json['Task Simplex']
          taskDownload.Task_Sequence = task_json['Task Sequence']
          taskDownload.Trajectory = task_json['Trajectory']
-         # taskDownload.Homing_Trajectory = task_download['Homing_Trajectory']
+         taskDownload.Homing_Trajectory = task_json['Homing Trajectory']
          taskDownload.Action_Type = task_json['Action Type']
          taskDownload.CST = task_json['CST']
          taskDownload.Destination = task_json['Destination']
