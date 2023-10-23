@@ -180,14 +180,14 @@ class clsTaskFeedback:
     """
     任務狀態物件    
     """
-    def __init__(self,task_name:str,task_simplex:str,task_seq:int,point_index:int,taskStatus:'TASK_STATUS'):
+    def __init__(self,task_name:str,task_simplex:str,task_seq:int,point_index:int,taskStatus:'TASK_STATUS', LastVisitedNode: int):
         self.timestamp=datetime.now().strftime("%Y%m%d %H:%M:%S")
         self.task_name=task_name
         self.task_simplex=task_simplex
         self.task_seq = task_seq
         self.point_index = point_index
         self.status = taskStatus
-        
+        self.LastVisitedNode = LastVisitedNode
 
 class TaskFeedbackEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -198,7 +198,8 @@ class TaskFeedbackEncoder(json.JSONEncoder):
                 'TaskSimplex': obj.task_simplex,
                 'TaskSequence': obj.task_seq,
                 'PointIndex': obj.point_index,
-                'TaskStatus': obj.status.value
+                'TaskStatus': obj.status.value,
+                'LastVisitedNode':obj.LastVisitedNode
             }
         return super().default(obj)
 
